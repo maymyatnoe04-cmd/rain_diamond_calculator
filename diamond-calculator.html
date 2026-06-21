@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diamond Price Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-color: #1e293b;
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        body.dark-mode {
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(148, 163, 184, 0.2);
+            --text-color: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .theme-toggle {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .input-section h2,
+        .result-section h2,
+        .history-section h2 {
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: white;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e293b;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e293b;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .preset-group {
+            margin-bottom: 25px;
+        }
+
+        .preset-group-title {
+            color: white;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-left: 4px solid #4facfe;
+            padding-left: 12px;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .preset-btn {
+            background: rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result-item .label {
+            color: white;
+            opacity: 0.9;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .result-item .value {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .final-result {
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .final-result .label {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .final-result .value {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .history-table th {
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+        }
+
+        .history-table tr:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .empty-history {
+            text-align: center;
+            color: white;
+            opacity: 0.7;
+            padding: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #10b981;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .glass-card {
+                padding: 20px;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .final-result .value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💎 Diamond Price Calculator</h1>
+            <button class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+
+        <div class="glass-card input-section">
+            <h2>ထည့်သွင်းရန်</h2>
+            
+            <div class="form-group">
+                <label>Smile Coin Price (MMK)</label>
+                <input type="number" id="smile-price" placeholder="80000" value="80000">
+            </div>
+
+            <div class="preset-group">
+                <div class="preset-group-title">💎 Diamond 2x</div>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="setPassCost(105)">💎50+55</button>
+                    <button class="preset-btn" onclick="setPassCost(315)">💎150+165</button>
+                    <button class="preset-btn" onclick="setPassCost(525)">💎250+275</button>
+                    <button class="preset-btn" onclick="setPassCost(1065)">💎500+565</button>
+                </div>
+            </div>
+
+            <div class="preset-group">
+                <div class="preset-group-title">Items</div>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="setPassCost(76)">Weekly Pass</button>
+                    <button class="preset-btn" onclick="setPassCost(402.5)">Twilight Pass</button>
+                    <button class="preset-btn" onclick="setPassCost(39)">Weekly Elite Pass</button>
+                    <button class="preset-btn" onclick="setPassCost(196.5)">Monthly Epic Pass</button>
+                </div>
+            </div>
+
+            <div class="preset-group">
+                <div class="preset-group-title">💎Diamonds</div>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="setPassCost(86)">💎86</button>
+                    <button class="preset-btn" onclick="setPassCost(172)">💎172</button>
+                    <button class="preset-btn" onclick="setPassCost(257)">💎257</button>
+                    <button class="preset-btn" onclick="setPassCost(706)">💎706</button>
+                    <button class="preset-btn" onclick="setPassCost(2195)">💎2195</button>
+                    <button class="preset-btn" onclick="setPassCost(3688)">💎3688</button>
+                    <button class="preset-btn" onclick="setPassCost(5532)">💎5532</button>
+                    <button class="preset-btn" onclick="setPassCost(9288)">💎9288</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Smile Coin Cost</label>
+                <input type="number" id="pass-cost" placeholder="76" value="76" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" id="quantity" placeholder="1" value="1" min="1">
+            </div>
+
+            <div class="form-group">
+                <label>Profit Percentage (%)</label>
+                <input type="number" id="profit-percent" placeholder="7" value="7" step="0.1">
+            </div>
+        </div>
+
+        <div class="glass-card result-section">
+            <h2>ရလဒ်များ</h2>
+            
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="label">Smile Coin Cost</div>
+                    <div class="value" id="smile-coin-cost">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">Cost Per Coin</div>
+                    <div class="value" id="cost-per-coin">0 MMK</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">Original Cost</div>
+                    <div class="value" id="original-cost">0 MMK</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">Profit Amount</div>
+                    <div class="value" id="profit-amount">0 MMK</div>
+                </div>
+            </div>
+
+            <div class="final-result">
+                <div class="label">Final Selling Price</div>
+                <div class="value" id="selling-price">💎 0 MMK</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" id="copy-btn">
+                    <i class="fas fa-copy"></i> Copy Result
+                </button>
+                <button class="btn btn-primary" id="save-btn">
+                    <i class="fas fa-save"></i> Save to History
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card history-section">
+            <h2>မှတ်တမ်းများ</h2>
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Selling Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        let history = JSON.parse(localStorage.getItem('diamondHistory') || '[]');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkTheme();
+            calculate();
+            renderHistory();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('smile-price').addEventListener('input', calculate);
+            document.getElementById('pass-cost').addEventListener('input', calculate);
+            document.getElementById('quantity').addEventListener('input', calculate);
+            document.getElementById('profit-percent').addEventListener('input', calculate);
+            document.getElementById('copy-btn').addEventListener('click', copyResult);
+            document.getElementById('save-btn').addEventListener('click', saveToHistory);
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            });
+        }
+
+        function calculate() {
+            const smilePrice = parseFloat(document.getElementById('smile-price').value) || 0;
+            const passCost = parseFloat(document.getElementById('pass-cost').value) || 0;
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const profitPercent = parseFloat(document.getElementById('profit-percent').value) || 0;
+
+            const costPerCoin = smilePrice / 1000;
+            const originalCost = costPerCoin * passCost * quantity;
+            const profitAmount = originalCost * (profitPercent / 100);
+            const sellingPrice = originalCost + profitAmount;
+            const totalSmileCoin = passCost * quantity;
+
+            document.getElementById('smile-coin-cost').textContent = formatNumber(totalSmileCoin);
+            document.getElementById('cost-per-coin').textContent = `${formatNumber(costPerCoin)} MMK`;
+            document.getElementById('original-cost').textContent = `${formatNumber(originalCost)} MMK`;
+            document.getElementById('profit-amount').textContent = `${formatNumber(profitAmount)} MMK`;
+            document.getElementById('selling-price').textContent = `💎 ${formatNumber(sellingPrice)} MMK`;
+
+            return { costPerCoin, originalCost, profitAmount, sellingPrice, totalSmileCoin };
+        }
+
+        function copyResult() {
+            const { sellingPrice } = calculate();
+            const text = `Final Selling Price: 💎 ${formatNumber(sellingPrice)} MMK`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast();
+            });
+        }
+
+        function showToast(message = 'Copied to clipboard!') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function saveToHistory() {
+            const smilePrice = parseFloat(document.getElementById('smile-price').value) || 0;
+            const passCost = parseFloat(document.getElementById('pass-cost').value) || 0;
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const { sellingPrice } = calculate();
+
+            const entry = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('en-US'),
+                smilePrice: smilePrice,
+                passCost: passCost,
+                quantity: quantity,
+                sellingPrice: sellingPrice
+            };
+
+            history.unshift(entry);
+            localStorage.setItem('diamondHistory', JSON.stringify(history));
+            renderHistory();
+            showToast('Saved to history!');
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('history-body');
+            tbody.innerHTML = '';
+
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-history">No history yet</td></tr>';
+                return;
+            }
+
+            history.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.date}</td>
+                    <td>${formatNumber(entry.passCost)}</td>
+                    <td>${entry.quantity}</td>
+                    <td>💎 ${formatNumber(entry.sellingPrice)} MMK</td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; margin: 0;" onclick="deleteFromHistory(${entry.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function deleteFromHistory(id) {
+            history = history.filter(entry => entry.id !== id);
+            localStorage.setItem('diamondHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function checkTheme() {
+            const theme = localStorage.getItem('diamondTheme');
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('#theme-toggle i').className = 'fas fa-sun';
+            }
+        }
+
+        function setPassCost(cost) {
+            document.getElementById('pass-cost').value = cost;
+            calculate();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            if (isDark) {
+                localStorage.setItem('diamondTheme', 'dark');
+                document.querySelector('#theme-toggle i').className = 'fas fa-sun';
+            } else {
+                localStorage.setItem('diamondTheme', 'light');
+                document.querySelector('#theme-toggle i').className = 'fas fa-moon';
+            }
+        }
+    </script>
+</body>
+</html>
